@@ -9,7 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.example.tagpaw.navigation.TagPawApp
 import com.example.tagpaw.nfc.NfcUtils
-import com.example.tagpaw.Ui.theme.TagPawTheme
+import com.example.tagpaw.ui.theme.TagPawTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

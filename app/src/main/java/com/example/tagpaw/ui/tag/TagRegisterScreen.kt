@@ -1,4 +1,4 @@
-package com.example.tagpaw.Ui.tag
+package com.example.tagpaw.ui.tag
 
 import android.app.Activity
 import android.nfc.NfcAdapter
@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tagpaw.nfc.NfcUtils
 import com.example.tagpaw.nfc.NfcUtils.buildEmergencyText
-import com.example.tagpaw.Ui.theme.TagPawTheme
+import com.example.tagpaw.ui.theme.TagPawTheme
 
 @Composable
 fun TagRegisterScreen(

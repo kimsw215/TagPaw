@@ -1,4 +1,4 @@
-package com.example.tagpaw.Ui.home
+package com.example.tagpaw.ui.home
 
 import android.app.Activity
 import android.nfc.NfcAdapter
@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tagpaw.domain.entities.PetEntity
 import com.example.tagpaw.nfc.NfcUtils
-import com.example.tagpaw.Ui.theme.TagPawTheme
+import com.example.tagpaw.ui.theme.TagPawTheme
 
 @Composable
 fun HomeScreen(

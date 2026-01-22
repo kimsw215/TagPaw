@@ -1,4 +1,4 @@
-package com.example.tagpaw.Ui.emergency
+package com.example.tagpaw.ui.emergency
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

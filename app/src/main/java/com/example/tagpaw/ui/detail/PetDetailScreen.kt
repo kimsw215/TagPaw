@@ -1,4 +1,4 @@
-package com.example.tagpaw.Ui.detail
+package com.example.tagpaw.ui.detail
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -9,7 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tagpaw.domain.entities.PetEntity
-import com.example.tagpaw.Ui.theme.TagPawTheme
+import com.example.tagpaw.ui.theme.TagPawTheme
 
 @Composable
 fun PetDetailScreen(

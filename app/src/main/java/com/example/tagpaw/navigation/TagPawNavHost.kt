@@ -7,11 +7,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.tagpaw.Ui.addpet.AddPetScreen
-import com.example.tagpaw.Ui.emergency.EmergencyEditScreen
-import com.example.tagpaw.Ui.home.HomeScreen
-import com.example.tagpaw.Ui.detail.PetDetailScreen
-import com.example.tagpaw.Ui.tag.TagRegisterScreen
+import com.example.tagpaw.ui.addpet.AddPetScreen
+import com.example.tagpaw.ui.emergency.EmergencyEditScreen
+import com.example.tagpaw.ui.home.HomeScreen
+import com.example.tagpaw.ui.detail.PetDetailScreen
+import com.example.tagpaw.ui.tag.TagRegisterScreen
 
 @Composable
 fun TagPawApp(modifier: Modifier = Modifier) {

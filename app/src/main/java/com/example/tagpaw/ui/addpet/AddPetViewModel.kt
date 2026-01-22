@@ -1,4 +1,4 @@
-package com.example.tagpaw.Ui.addpet
+package com.example.tagpaw.ui.addpet
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
