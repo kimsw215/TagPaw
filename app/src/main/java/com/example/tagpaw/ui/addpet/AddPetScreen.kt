@@ -1,7 +1,9 @@
 package com.example.tagpaw.ui.addpet
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,8 +22,8 @@ fun AddPetScreen(
     viewModel: AddPetViewModel = hiltViewModel()
 ) {
     AddPetContent(
-        onSaveClick = { name, sex, age, phone, note, pin ->
-            viewModel.savePet(name, sex, age, phone, note, pin, onPetSaved)
+        onSaveClick = { name, age, phone, note, pin ->
+            viewModel.savePet(name, age, phone, note, pin, onPetSaved)
         },
         onBackClick = onBackClick
     )
@@ -30,17 +32,16 @@ fun AddPetScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPetContent(
-    onSaveClick: (String, String, String, String, String, String) -> Unit,
+    onSaveClick: (String, String, String, String, String) -> Unit,
     onBackClick: () -> Unit
 ) {
     var name by remember { mutableStateOf("") }
-    var sex by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
     var pin by remember { mutableStateOf("") }
 
-    val maxNoteLength = 40
+    val maxNoteLength = 30
 
     Scaffold(
         topBar = {
@@ -57,37 +58,36 @@ fun AddPetContent(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("이름") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            Spacer(Modifier.height(8.dp))
+            // 이름 + 나이 한 줄
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = sex,
-                    onValueChange = { sex = it },
-                    label = { Text("성별") },
+                    value = name,
+                    onValueChange = { if (it.length <= 3) name = it },
+                    label = { Text("이름") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    supportingText = { Text("최대 3자") }
                 )
                 Spacer(Modifier.width(8.dp))
                 OutlinedTextField(
                     value = age,
-                    onValueChange = { if (it.all { char -> char.isDigit() }) age = it },
-                    label = { Text("나이 (숫자)") },
+                    onValueChange = { input ->
+                        val digits = input.filter { it.isDigit() }
+                        if (digits.length <= 2) age = digits
+                    },
+                    label = { Text("나이") },
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     suffix = { Text("살") },
                     singleLine = true
                 )
             }
+
             Spacer(Modifier.height(8.dp))
-            
-            // 연락처 필드: 포맷팅 없이 숫자만 입력받음
+
+            // 연락처
             OutlinedTextField(
                 value = phone,
                 onValueChange = { input ->
@@ -101,36 +101,56 @@ fun AddPetContent(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                 singleLine = true
             )
-            
+
             Spacer(Modifier.height(8.dp))
+
+            // 메모
             OutlinedTextField(
                 value = note,
                 onValueChange = { if (it.length <= maxNoteLength) note = it },
-                label = { Text("주의 사항") },
+                label = { Text("메모") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 supportingText = {
                     Box(modifier = Modifier.fillMaxWidth()) {
-                        Text("NFC 태그 용량상 짧게 작성해주세요.", modifier = Modifier.align(Alignment.CenterStart))
-                        Text("${note.length} / $maxNoteLength", modifier = Modifier.align(Alignment.CenterEnd), color = if (note.length >= maxNoteLength) Color.Red else Color.Unspecified)
+                        Text(
+                            "NFC 태그 용량상 짧게 작성해주세요.",
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        )
+                        Text(
+                            "${note.length} / $maxNoteLength",
+                            modifier = Modifier.align(Alignment.CenterEnd),
+                            color = if (note.length >= maxNoteLength)
+                                Color.Red else Color.Unspecified
+                        )
                     }
                 }
             )
+
             Spacer(Modifier.height(8.dp))
+
+            // PIN
             OutlinedTextField(
                 value = pin,
-                onValueChange = { if (it.length <= 6 && it.all { c -> c.isDigit() }) pin = it },
-                label = { Text("PIN (4~6자리 숫자)") },
+                onValueChange = { input ->
+                    val digits = input.filter { it.isDigit() }
+                    if (digits.length <= 4) pin = digits
+                },
+                label = { Text("PIN (4자리 숫자)") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                singleLine = true
+                singleLine = true,
+                supportingText = { Text("NFC 태그 덮어쓰기 방지용 비밀번호입니다.") }
             )
 
             Spacer(Modifier.height(24.dp))
 
             Button(
-                onClick = { onSaveClick(name, sex, age, phone, note, pin) },
-                enabled = name.isNotBlank() && pin.length in 4..6,
+                onClick = { onSaveClick(name, age, phone, note, pin) },
+                enabled = name.isNotBlank() &&
+                        age.isNotBlank() &&
+                        phone.length == 11 &&
+                        pin.length == 4,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("저장 후 태그 등록")
@@ -143,6 +163,6 @@ fun AddPetContent(
 @Composable
 fun AddPetPreview() {
     TagPawTheme {
-        AddPetContent(onSaveClick = { _, _, _, _, _, _ -> }, onBackClick = {})
+        AddPetContent(onSaveClick = { _, _, _, _, _ -> }, onBackClick = {})
     }
 }

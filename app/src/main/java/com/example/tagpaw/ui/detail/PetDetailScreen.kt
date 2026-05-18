@@ -115,7 +115,6 @@ fun PetDetailContent(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("기본 정보", style = MaterialTheme.typography.headlineSmall)
                     Spacer(Modifier.height(8.dp))
-                    Text("성별: ${pet.sex}")
                     Text("나이: ${pet.age}살")
                 }
             }
@@ -181,7 +180,6 @@ fun PetDetailPreview() {
             pet = PetEntity(
                 id = 1,
                 name = "초코",
-                sex = "암컷",
                 age = "3",
                 emergencyPhone = "01012345678",
                 emergencyNote = "견과류 알레르기가 있어요.",

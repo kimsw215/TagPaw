@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tagpaw.data.repository.PetRepository
 import com.example.tagpaw.domain.entities.PetEntity
+import com.example.tagpaw.nfc.NfcUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -17,6 +18,16 @@ class TagRegisterViewModel @Inject constructor(
     private val _pet = MutableStateFlow<PetEntity?>(null)
     val pet: StateFlow<PetEntity?> = _pet.asStateFlow()
 
+    private val _uiState = MutableStateFlow<RegisterUiState>(RegisterUiState.Ready)
+    val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
+
+    sealed class RegisterUiState {
+        object Ready : RegisterUiState()
+        data class NeedPinAuth(val pinHashOnTag: String) : RegisterUiState()
+        object AuthSuccess : RegisterUiState()
+        data class Error(val message: String) : RegisterUiState()
+    }
+
     fun loadPet(petId: Long) {
         viewModelScope.launch {
             petRepository.getPetById(petId).collect {
@@ -25,16 +36,36 @@ class TagRegisterViewModel @Inject constructor(
         }
     }
 
-    fun saveTagToPet(
-        petId: Long,
-        uid: String,
-        onSaved: () -> Unit
-    ) {
+    fun onTagDiscovered(pinHashOnTag: String?) {
+        if (pinHashOnTag != null) {
+            _uiState.value = RegisterUiState.NeedPinAuth(pinHashOnTag)
+        } else {
+            _uiState.value = RegisterUiState.AuthSuccess
+        }
+    }
+
+    fun verifyPin(inputPin: String) {
+        val currentState = _uiState.value
+        if (currentState is RegisterUiState.NeedPinAuth) {
+            val inputHash = NfcUtils.hashPin(inputPin)
+            if (inputHash == currentState.pinHashOnTag) {
+                _uiState.value = RegisterUiState.AuthSuccess
+            } else {
+                _uiState.value = RegisterUiState.Error("PIN 번호가 일치하지 않습니다.")
+            }
+        }
+    }
+
+    fun saveTagToPet(petId: Long, uid: String, onSaved: () -> Unit) {
         viewModelScope.launch {
             val currentPet = _pet.value ?: return@launch
             val updated = currentPet.copy(tagUid = uid)
             petRepository.upsert(updated)
             onSaved()
         }
+    }
+
+    fun resetError() {
+        _uiState.value = RegisterUiState.Ready
     }
 }

@@ -6,7 +6,7 @@ import com.example.tagpaw.domain.entities.PetEntity
 
 @Database(
     entities = [PetEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class TagPawDatabase : RoomDatabase() {

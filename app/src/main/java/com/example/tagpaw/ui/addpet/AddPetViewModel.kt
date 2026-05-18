@@ -15,7 +15,6 @@ class AddPetViewModel @Inject constructor(
 
     fun savePet(
         name: String,
-        sex: String,
         age: String,
         phone: String,
         note: String,
@@ -23,16 +22,14 @@ class AddPetViewModel @Inject constructor(
         onSaved: (Long) -> Unit
     ) {
         viewModelScope.launch {
-            val id = petRepository.upsert(
-                PetEntity(
-                    name = name,
-                    sex = sex,
-                    age = age,
-                    emergencyPhone = phone,
-                    emergencyNote = note,
-                    pin = pin
-                )
+            val pet = PetEntity(
+                name = name,
+                age = age,           // "2" → NFC 저장 시 "화멍이(2살)" 로 조합
+                emergencyPhone = phone,
+                emergencyNote = note,
+                pin = pin
             )
+            val id = petRepository.upsert(pet)
             onSaved(id)
         }
     }

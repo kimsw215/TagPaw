@@ -28,7 +28,6 @@ class EmergencyEditViewModel @Inject constructor(
 
     fun updatePet(
         name: String,
-        sex: String,
         age: String,
         phone: String,
         note: String,
@@ -39,7 +38,6 @@ class EmergencyEditViewModel @Inject constructor(
         viewModelScope.launch {
             val updated = current.copy(
                 name = name,
-                sex = sex,
                 age = age,
                 emergencyPhone = phone,
                 emergencyNote = note,

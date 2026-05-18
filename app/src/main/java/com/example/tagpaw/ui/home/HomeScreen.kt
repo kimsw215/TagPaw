@@ -114,20 +114,41 @@ private fun PetListItem(
     pet: PetEntity,
     onClick: () -> Unit
 ) {
+    // 💡 태그 등록 여부에 따라 카드 배경색 결정
+    val cardColors = if (pet.tagUid != null) {
+        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+    } else {
+        CardDefaults.cardColors()
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
+        colors = cardColors
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = pet.name, style = MaterialTheme.typography.titleLarge)
-            Text(text = "${pet.age}살 · ${pet.sex}", style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.height(4.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(text = pet.name, style = MaterialTheme.typography.titleLarge)
+                Text(text = "${pet.age}살", style = MaterialTheme.typography.bodyMedium)
+            }
+            
             if (pet.tagUid != null) {
-                AssistChip(onClick = {}, label = { Text("태그 연결됨") })
-            } else {
-                AssistChip(onClick = {}, label = { Text("태그 미연결") })
+                SuggestionChip(
+                    onClick = { },
+                    label = { Text("태그 연결됨") },
+                    colors = SuggestionChipDefaults.suggestionChipColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        labelColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                )
             }
         }
     }
@@ -139,10 +160,8 @@ fun HomePreview() {
     TagPawTheme {
         HomeContent(
             pets = listOf(
-                PetEntity(id = 1, name = "초코", sex = "암컷", age = "3", tagUid = "ABC123",
-                    emergencyPhone = "010-8792-2505", emergencyNote = "귀여움", pin = ""),
-                PetEntity(id = 2, name = "쿠키", sex = "수컷", age = "5", tagUid = null,
-                    emergencyPhone = "010-8792-2505", emergencyNote = "귀여움", pin = "")
+                PetEntity(id = 1, name = "초코",  age = "3", tagUid = "ABC123", emergencyPhone = "", emergencyNote = "", pin = ""),
+                PetEntity(id = 2, name = "쿠키",  age = "5", tagUid = null, emergencyPhone = "", emergencyNote = "", pin = "")
             ),
             onAddPetClick = {},
             onPetClick = {}

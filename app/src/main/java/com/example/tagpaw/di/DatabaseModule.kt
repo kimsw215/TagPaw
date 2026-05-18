@@ -24,7 +24,9 @@ object DatabaseModule {
             context,
             TagPawDatabase::class.java,
             "tagpaw.db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration() // 스키마가 바뀌면 기존 데이터를 전부 지우고 새로 만들어줌
+            .build()
     }
 
     @Provides

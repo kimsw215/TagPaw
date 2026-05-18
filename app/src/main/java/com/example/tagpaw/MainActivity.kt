@@ -34,7 +34,6 @@ class MainActivity : ComponentActivity() {
         // TODO: 나중에 TagRegisterScreen / HomeScreen 쪽과 연결
         val tag: Tag? = intent?.getParcelableExtra(NfcAdapter.EXTRA_TAG)
         val uid = NfcUtils.getTagUidHex(tag)
-        val ndefText = NfcUtils.readNdefText(tag)
 
         // 일단 로그 찍어보는 정도로만 두고,
         // 나중에 ViewModel로 이벤트를 전달해서 처리하자.
