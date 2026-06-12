@@ -42,6 +42,9 @@ fun TagRegisterScreen(
     var showPinDialog by remember { mutableStateOf(false) }
     var inputPin by remember { mutableStateOf("") }
 
+    val currentUiState by rememberUpdatedState(uiState)
+    val currentPet by rememberUpdatedState(pet)
+
     LaunchedEffect(petId) {
         viewModel.loadPet(petId)
     }
@@ -52,7 +55,7 @@ fun TagRegisterScreen(
         }
     }
 
-    DisposableEffect(uiState, pet) {
+    DisposableEffect(Unit) { // uiState, pet 제거
         val callback = NfcAdapter.ReaderCallback { tag: Tag? ->
             tag ?: return@ReaderCallback
             val uid = NfcUtils.getTagUidHex(tag)
@@ -62,9 +65,8 @@ fun TagRegisterScreen(
             try {
                 val ndef = Ndef.get(tag)
                 if (ndef != null) {
-                    ndef.connect() // 한 번만 연결
+                    ndef.connect()
 
-                    // 읽기 - 이미 연결된 상태에서
                     val message = ndef.ndefMessage
                     var pinHashOnTag: String? = null
 
@@ -86,14 +88,12 @@ fun TagRegisterScreen(
                     }
 
                     if (pinHashOnTag != null &&
-                        uiState !is TagRegisterViewModel.RegisterUiState.AuthSuccess
+                        currentUiState !is TagRegisterViewModel.RegisterUiState.AuthSuccess
                     ) {
-                        // PIN 있는 태그 → PIN 인증 필요
                         ndef.close()
                         viewModel.onTagDiscovered(pinHashOnTag)
                     } else {
-                        // 빈 태그이거나 인증 성공 → 바로 쓰기
-                        pet?.let {
+                        currentPet?.let {
                             if (!ndef.isWritable) {
                                 ndef.close()
                                 writeResult = "쓰기 불가능한 태그입니다."
@@ -132,8 +132,7 @@ fun TagRegisterScreen(
                         }
                     }
                 } else {
-                    // NDEF 포맷이 안 된 경우
-                    pet?.let {
+                    currentPet?.let {
                         val success = NfcUtils.writeNdefRecords(
                             tag = tag,
                             phone = it.emergencyPhone,
@@ -155,65 +154,6 @@ fun TagRegisterScreen(
                 android.util.Log.e("TagRegister", "error: ${e.message}", e)
             }
         }
-        /*val callback = NfcAdapter.ReaderCallback { tag: Tag? ->
-            tag ?: return@ReaderCallback
-            val uid = NfcUtils.getTagUidHex(tag)
-            lastUid = uid
-            writeResult = null
-
-            try {
-                val ndef = Ndef.get(tag)
-                if (ndef != null) {
-                    // connect/close는 readNdefRecords 내부에서 처리
-                    val (_, pinHashOnTag) = NfcUtils.readNdefRecords(tag)
-
-                    if (pinHashOnTag != null &&
-                        uiState !is TagRegisterViewModel.RegisterUiState.AuthSuccess
-                    ) {
-                        // PIN 있는 태그 → PIN 인증 필요
-                        viewModel.onTagDiscovered(pinHashOnTag)
-                    } else {
-                        // 빈 태그이거나 인증 성공 → 바로 쓰기
-                        pet?.let {
-                            val success = NfcUtils.writeNdefRecords(
-                                tag = tag,
-                                phone = it.emergencyPhone,
-                                name = it.name,
-                                age = it.age,
-                                note = it.emergencyNote,
-                                pin = it.pin
-                            )
-                            if (success) {
-                                writeResult = "태그 저장 성공!"
-                                viewModel.saveTagToPet(petId, uid!!, onDone)
-                            } else {
-                                writeResult = "태그 쓰기 실패"
-                            }
-                        }
-                    }
-                } else {
-                    // NDEF 포맷이 안 된 경우 → 포맷 후 쓰기
-                    pet?.let {
-                        val success = NfcUtils.writeNdefRecords(
-                            tag = tag,
-                            phone = it.emergencyPhone,
-                            name = it.name,
-                            age = it.age,
-                            note = it.emergencyNote,
-                            pin = it.pin
-                        )
-                        if (success) {
-                            writeResult = "포맷 및 저장 성공!"
-                            viewModel.saveTagToPet(petId, uid!!, onDone)
-                        } else {
-                            writeResult = "지원되지 않는 태그입니다."
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                writeResult = "오류: 다시 태그해주세요."
-            }
-        }*/
 
         nfcAdapter?.enableReaderMode(
             activity, callback,
@@ -269,6 +209,7 @@ fun TagRegisterScreen(
                 TextButton(onClick = {
                     showPinDialog = false
                     inputPin = ""
+                    viewModel.resetError()
                 }) {
                     Text("취소")
                 }
